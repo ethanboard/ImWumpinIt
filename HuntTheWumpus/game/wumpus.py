@@ -75,6 +75,46 @@ class Game:
             self.player_pos = self.random_empty_cell()
             self.check_current_tile()  # recursive re-check
 
+    def shoot_arrow(self, direction):
+        if self.arrows <= 0:
+            print("You're out of arrows!")
+            return
+
+        self.arrows -= 1
+        x, y = self.player_pos
+
+        print(f"You shoot an arrow to the {direction}...")
+
+        while 0 <= x < GRID_SIZE and 0 <= y < GRID_SIZE:
+            if (x, y) == self.wumpus_pos:
+                print("Your arrow hits the Wumpus! You win!")
+                self.game_over = True
+                return
+            if direction == 'W':
+                y -= 1
+            elif direction == 'S':
+                y += 1
+            elif direction == 'A':
+                x -= 1
+            elif direction == 'D':
+                x += 1
+
+        print("Missed! The Wumpus wakes up and moves...")
+        self.move_wumpus()
+
+    def move_wumpus(self):
+        # Move Wumpus to a random adjacent cell
+        x, y = self.wumpus_pos
+        directions = [(0,1), (1,0), (0,-1), (-1,0)]
+        random.shuffle(directions)
+        for dx, dy in directions:
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < GRID_SIZE and 0 <= ny < GRID_SIZE and self.grid[ny][nx] == '':
+                self.grid[y][x] = ''
+                self.wumpus_pos = (nx, ny)
+                self.grid[ny][nx] = 'W'
+                return
+
     def display_player_view(self):
         print(f"\nYou are at position {self.player_pos}")
         print(f"Arrows remaining: {self.arrows}")
